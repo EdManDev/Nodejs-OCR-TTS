@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id               String           @id @default(cuid())
+  filename         String
+  originalName     String
+  mimeType         String
+  size             Int
+  pageCount        Int
+  status           ProcessingStatus @default(UPLOADED)
+  uploadedAt       DateTime         @default(now())
+  processedAt      DateTime?
+  extractedText    String?          @db.Text
+  storageLocation  String
+  
+  // Metadata
+  title            String?
+  author           String?
+  subject          String?
+  creator          String?
+  producer         String?
+  creationDate     DateTime?
+  modificationDate DateTime?
+  language         String?
+  pageWidth        Float?
+  pageHeight       Float?
+  pageUnit         String?
+  isScanned        Boolean          @default(false)
+  ocrConfidence    Float?
+  
+  // Relations
+  textChunks       TextChunk[]
+  processingJobs   ProcessingJob[]
+  
+  @@map("documents")
+}
+
+model TextChunk {
+  id                    String   @id @default(cuid())
+  documentId            String
+  chunkIndex            Int
+  content               String   @db.Text
+  startPage             Int
+  endPage               Int
+  wordCount             Int
+  characterCount        Int
+  estimatedReadingTime  Int      // in seconds
+  createdAt             DateTime @default(now())
+  
+  // Relations
+  document              Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  @@unique([documentId, chunkIndex])
+  @@map("text_chunks")
+}
+
+model ProcessingJob {
+  id          String    @id @default(cuid())
+  documentId  String
+  type        JobType
+  status      JobStatus @default(WAITING)
+  progress    Int       @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  error       String?   @db.Text
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  @@map("processing_jobs")
+}
+
+model QueueJob {
+  id            String    @id @default(cuid())
+  queueName     String
+  jobData       Json
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(3)
+  delay         Int       @default(0)
+  priority      Int       @default(0)
+  status        JobStatus @default(WAITING)
+  processedAt   DateTime?
+  failedAt      DateTime?
+  error         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([queueName, status])
+  @@index([createdAt])
+  @@map("queue_jobs")
+}
+
+model SystemLog {
+  id          String   @id @default(cuid())
+  level       LogLevel
+  message     String   @db.Text
+  metadata    Json     @default("{}")
+  service     String?
+  requestId   String?
+  timestamp   DateTime @default(now())
+  
+  @@index([level, timestamp])
+  @@index([service, timestamp])
+  @@map("system_logs")
+}
+
+enum ProcessingStatus {
+  UPLOADED
+  QUEUED
+  PROCESSING
+  EXTRACTING_TEXT
+  CHUNKING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum JobType {
+  PDF_UPLOAD
+  TEXT_EXTRACTION
+  TEXT_CHUNKING
+  CLEANUP
+}
+
+enum JobStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+  DELAYED
+  STUCK
+}
+
+enum LogLevel {
+  ERROR
+  WARN
+  INFO
+  DEBUG
+}
