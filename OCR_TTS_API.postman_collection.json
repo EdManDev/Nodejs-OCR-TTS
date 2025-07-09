@@ -1,0 +1,590 @@
+{
+  "info": {
+    "_postman_id": "ocr-tts-api-collection",
+    "name": "OCR TTS API",
+    "description": "Complete API collection for the Node.js OCR TTS Backend - PDF processing, OCR, text chunking, and TTS synthesis",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "ocr-tts-api"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Basic Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Basic health check endpoint to verify the service is running"
+          },
+          "response": []
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health/detailed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health",
+                "detailed"
+              ]
+            },
+            "description": "Detailed health check with service status, memory usage, and uptime"
+          },
+          "response": []
+        },
+        {
+          "name": "Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health",
+                "ping"
+              ]
+            },
+            "description": "Simple ping endpoint for basic connectivity testing"
+          },
+          "response": []
+        }
+      ],
+      "description": "Health check endpoints to monitor service status"
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents?page=1&limit=10&status=completed&search=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of documents per page"
+                },
+                {
+                  "key": "status",
+                  "value": "completed",
+                  "description": "Filter by processing status (UPLOADED, QUEUED, PROCESSING, COMPLETED, FAILED)"
+                },
+                {
+                  "key": "search",
+                  "value": "sample",
+                  "description": "Search documents by filename"
+                }
+              ]
+            },
+            "description": "List all documents with pagination and filtering options"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Get detailed information about a specific document including metadata and processing status"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "PDF file to upload (required)"
+                },
+                {
+                  "key": "ocrLanguage",
+                  "value": "eng",
+                  "description": "OCR language code (optional, default: eng)"
+                },
+                {
+                  "key": "priority",
+                  "value": "normal",
+                  "description": "Processing priority (low, normal, high)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "upload"
+              ]
+            },
+            "description": "Upload a new PDF document for OCR processing and text extraction"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document Text Chunks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/chunks?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "chunks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of chunks per page"
+                }
+              ]
+            },
+            "description": "Get text chunks for a specific document with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Document",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "download"
+              ]
+            },
+            "description": "Get download link for the original PDF document"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Delete a document and all its associated data (text chunks, jobs, etc.)"
+          },
+          "response": []
+        },
+        {
+          "name": "Reprocess Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ocrLanguage\": \"eng\",\n  \"chunkingOptions\": {\n    \"maxWordsPerChunk\": 1000,\n    \"overlapWords\": 50,\n    \"preserveParagraphs\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/reprocess",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "reprocess"
+              ]
+            },
+            "description": "Reprocess a document with different OCR and chunking options"
+          },
+          "response": []
+        }
+      ],
+      "description": "Document management endpoints for uploading, processing, and managing PDF documents"
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "List Jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?page=1&limit=10&status=active&type=text_extraction&documentId=doc_1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of jobs per page"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by job status (WAITING, ACTIVE, COMPLETED, FAILED, DELAYED, STUCK)"
+                },
+                {
+                  "key": "type",
+                  "value": "text_extraction",
+                  "description": "Filter by job type (PDF_UPLOAD, TEXT_EXTRACTION, TEXT_CHUNKING, CLEANUP)"
+                },
+                {
+                  "key": "documentId",
+                  "value": "doc_1",
+                  "description": "Filter by document ID"
+                }
+              ]
+            },
+            "description": "List all processing jobs with filtering and pagination options"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jobs",
+                "{{jobId}}"
+              ]
+            },
+            "description": "Get detailed information about a specific processing job"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jobs",
+                "stats"
+              ]
+            },
+            "description": "Get comprehensive job statistics and queue information"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Job",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jobs",
+                "{{jobId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancel a running or waiting job"
+          },
+          "response": []
+        }
+      ],
+      "description": "Job management endpoints for monitoring and controlling processing jobs"
+    },
+    {
+      "name": "TTS (Text-to-Speech)",
+      "item": [
+        {
+          "name": "List Available Voices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tts/voices?language=en-US&gender=female",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tts",
+                "voices"
+              ],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "en-US",
+                  "description": "Filter voices by language code"
+                },
+                {
+                  "key": "gender",
+                  "value": "female",
+                  "description": "Filter voices by gender (male/female)"
+                }
+              ]
+            },
+            "description": "Get list of available TTS voices with filtering options"
+          },
+          "response": []
+        },
+        {
+          "name": "Synthesize Text to Speech",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello, this is a sample text for text-to-speech conversion.\",\n  \"voiceId\": \"en-us-female-1\",\n  \"options\": {\n    \"format\": \"mp3\",\n    \"sampleRate\": 22050,\n    \"bitRate\": 128\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tts/synthesize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tts",
+                "synthesize"
+              ]
+            },
+            "description": "Convert text to speech with specified voice and options"
+          },
+          "response": []
+        },
+        {
+          "name": "Synthesize Document to Speech",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"voiceId\": \"en-us-female-1\",\n  \"chunkIds\": [\"chunk_1\", \"chunk_2\", \"chunk_3\"],\n  \"options\": {\n    \"format\": \"mp3\",\n    \"sampleRate\": 22050,\n    \"bitRate\": 128,\n    \"includeTimestamps\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tts/document/{{documentId}}/synthesize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tts",
+                "document",
+                "{{documentId}}",
+                "synthesize"
+              ]
+            },
+            "description": "Convert document text chunks to speech (asynchronous processing)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audio Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tts/audio/{{audioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tts",
+                "audio",
+                "{{audioId}}"
+              ]
+            },
+            "description": "Get details about a generated audio file"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Audio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tts/audio/{{audioId}}?action=download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tts",
+                "audio",
+                "{{audioId}}"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "download",
+                  "description": "Action to perform (info or download)"
+                }
+              ]
+            },
+            "description": "Get download link for generated audio file"
+          },
+          "response": []
+        }
+      ],
+      "description": "Text-to-Speech endpoints for voice synthesis and audio generation"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "doc_1",
+      "type": "string"
+    },
+    {
+      "key": "jobId",
+      "value": "job_1",
+      "type": "string"
+    },
+    {
+      "key": "audioId",
+      "value": "audio_1",
+      "type": "string"
+    }
+  ]
+}

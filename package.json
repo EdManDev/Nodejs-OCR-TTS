@@ -15,7 +15,8 @@
     "clean": "rimraf dist",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "setup-database": "node setup-database.js"
   },
   "keywords": [
     "nodejs",
@@ -45,6 +46,7 @@
     "pdf-parse": "^1.1.1",
     "pdf-poppler": "^0.2.1",
     "pdf2pic": "^2.1.4",
+    "pg": "^8.16.3",
     "redis": "^4.6.11",
     "sharp": "^0.33.0",
     "tesseract.js": "^5.0.3",
@@ -61,6 +63,7 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.10.4",
+    "@types/pg": "^8.15.4",
     "@types/supertest": "^2.0.16",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.1",

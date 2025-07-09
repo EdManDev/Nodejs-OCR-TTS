@@ -76,6 +76,64 @@ npm run db:migrate
 mkdir uploads temp logs
 ```
 
+## 🗄️ Database Setup & Management
+
+### 1. Automatic Database Setup (Recommended)
+To automatically create the database and set permissions, run:
+```bash
+npm run setup-database
+```
+This script will create the `ocr_tts_db` database (if it doesn't exist) and grant all privileges to the `postgres` user.
+
+### 2. Prisma Studio (Visual DB Browser)
+To visually inspect and edit your database, run:
+```bash
+npx prisma studio
+```
+
+### 3. Resetting the Database (Development Only)
+To reset your database and reapply all migrations:
+```bash
+npx prisma migrate reset
+```
+
+## ⚠️ Prisma & PostgreSQL Troubleshooting
+- **Permission Denied / Access Errors:**
+  - Ensure your `.env` has the correct `DATABASE_URL` (see below).
+  - Run `npm run setup-database` to fix permissions.
+- **psql Not Found:**
+  - Use the provided Node.js setup script or a GUI tool like pgAdmin.
+- **Migration Errors:**
+  - Make sure PostgreSQL is running and accessible on `localhost:5432`.
+  - Check that your user has privileges on the `ocr_tts_db` database.
+
+## 📝 Example .env File
+```
+DATABASE_URL="postgresql://postgres:root@localhost:5432/ocr_tts_db"
+PORT=3000
+HOST=localhost
+NODE_ENV=development
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+MAX_FILE_SIZE=100MB
+UPLOAD_PATH=./uploads
+TEMP_PATH=./temp
+STORAGE_TYPE=local
+TESSERACT_LANG=eng
+OCR_DPI=300
+MAX_WORDS_PER_CHUNK=1000
+OVERLAP_WORDS=50
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+LOG_LEVEL=info
+LOG_FILE_PATH=./logs
+MAX_CONCURRENT_JOBS=5
+JOB_TIMEOUT_MS=300000
+CLEANUP_INTERVAL_HOURS=24
+```
+
 ## 🏃‍♂️ Running the Application
 
 ### Development Mode
