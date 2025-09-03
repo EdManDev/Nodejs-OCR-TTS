@@ -5,6 +5,7 @@ import { LoadingState } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { useSmartPolling } from '@/hooks/useSmartPolling';
 import { POLLING_INTERVALS } from '@/utils/constants';
+import { JobStatus } from '@/types';
 
 export const JobsPage: React.FC = () => {
   const { jobs, loading, fetchJobs, cancelJob, retryJob } = useJobStore();
@@ -15,7 +16,7 @@ export const JobsPage: React.FC = () => {
 
   // Memoize the active jobs check to prevent unnecessary re-renders
   const hasActiveJobs = useMemo(() =>
-    jobs.some(job => job.status === 'processing' || job.status === 'waiting'),
+    jobs.some(job => job.status === JobStatus.PROCESSING || job.status === JobStatus.PENDING),
     [jobs]
   );
 
@@ -32,15 +33,15 @@ export const JobsPage: React.FC = () => {
     dependencies: [hasActiveJobs]
   });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: JobStatus) => {
     switch (status) {
-      case 'completed':
+      case JobStatus.COMPLETED:
         return 'bg-green-100 text-green-800';
-      case 'processing':
+      case JobStatus.PROCESSING:
         return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
+      case JobStatus.FAILED:
         return 'bg-red-100 text-red-800';
-      case 'cancelled':
+      case JobStatus.CANCELLED:
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-blue-100 text-blue-800';
@@ -126,7 +127,7 @@ export const JobsPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
-                        {job.status === 'processing' && (
+                        {job.status === JobStatus.PROCESSING && (
                           <Button size="sm" variant="ghost" onClick={() => cancelJob(job.id)}>
                             <X className="h-4 w-4" />
                           </Button>

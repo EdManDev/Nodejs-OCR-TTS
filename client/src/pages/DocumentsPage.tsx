@@ -35,7 +35,7 @@ export const DocumentsPage: React.FC = () => {
 
   // Memoize the processing documents check to prevent unnecessary re-renders
   const hasProcessingDocuments = useMemo(() =>
-    documents.some(doc => doc.status === 'processing' || doc.status === 'queued'),
+    documents.some(doc => doc.status === DocumentStatus.PROCESSING || doc.status === DocumentStatus.UPLOADED),
     [documents]
   );
 

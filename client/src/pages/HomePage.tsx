@@ -5,6 +5,7 @@ import { useDocumentStore } from '@/store/useDocumentStore';
 import { useJobStore } from '@/store/useJobStore';
 import { LoadingState } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
+import { DocumentStatus } from '@/types';
 
 export const HomePage: React.FC = () => {
   const { documents, loading: docLoading, fetchDocuments } = useDocumentStore();
@@ -116,13 +117,13 @@ export const HomePage: React.FC = () => {
                           {new Date(doc.uploadedAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${doc.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : doc.status === 'processing'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : doc.status === 'failed'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-800'
+                      <span className={`px-2 py-1 text-xs rounded-full ${doc.status === DocumentStatus.COMPLETED
+                        ? 'bg-green-100 text-green-800'
+                        : doc.status === DocumentStatus.PROCESSING
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : doc.status === DocumentStatus.FAILED
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
                         }`}>
                         {doc.status}
                       </span>

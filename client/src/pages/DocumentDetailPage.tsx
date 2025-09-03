@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Download, RotateCcw, Volume2 } from 'lucide-react'
 import { useDocumentStore } from '@/store/useDocumentStore';
 import { LoadingState } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
+import { DocumentStatus } from '@/types';
 
 export const DocumentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -52,11 +53,11 @@ export const DocumentDetailPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div>
                       <p className="text-sm text-gray-500">Status</p>
-                      <span className={`px-2 py-1 text-xs rounded-full ${currentDocument.status === 'completed'
+                      <span className={`px-2 py-1 text-xs rounded-full ${currentDocument.status === DocumentStatus.COMPLETED
                           ? 'bg-green-100 text-green-800'
-                          : currentDocument.status === 'processing'
+                          : currentDocument.status === DocumentStatus.PROCESSING
                             ? 'bg-yellow-100 text-yellow-800'
-                            : currentDocument.status === 'failed'
+                            : currentDocument.status === DocumentStatus.FAILED
                               ? 'bg-red-100 text-red-800'
                               : 'bg-gray-100 text-gray-800'
                         }`}>
