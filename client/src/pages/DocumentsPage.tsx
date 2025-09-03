@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Upload, Search, Filter } from 'lucide-react';
 import { useDocumentStore } from '@/store/useDocumentStore';
@@ -22,7 +22,7 @@ export const DocumentsPage: React.FC = () => {
     filters,
     pagination,
     fetchDocuments,
-    setPagination,
+    loadMoreDocuments,
     deleteDocument,
     reprocessDocument,
     searchDocuments,
@@ -31,18 +31,24 @@ export const DocumentsPage: React.FC = () => {
 
   useEffect(() => {
     fetchDocuments();
-  }, [fetchDocuments]);
+  }, []); // Remove fetchDocuments from dependencies to prevent infinite loop
 
-  // Smart polling for documents that are being processed
-  const hasProcessingDocuments = documents.some(doc =>
-    doc.status === 'processing' || doc.status === 'queued'
+  // Memoize the processing documents check to prevent unnecessary re-renders
+  const hasProcessingDocuments = useMemo(() =>
+    documents.some(doc => doc.status === 'processing' || doc.status === 'queued'),
+    [documents]
   );
+
+  // Memoize the fetch function to prevent polling restarts
+  const memoizedFetchDocuments = useCallback(() => {
+    fetchDocuments();
+  }, []);
 
   useSmartPolling({
     enabled: hasProcessingDocuments,
     interval: POLLING_INTERVALS.DOCUMENTS,
     maxInterval: POLLING_INTERVALS.MAX_INTERVAL,
-    onPoll: fetchDocuments,
+    onPoll: memoizedFetchDocuments,
     dependencies: [hasProcessingDocuments]
   });
 
@@ -158,7 +164,7 @@ export const DocumentsPage: React.FC = () => {
               <div className="flex justify-center">
                 <Button
                   variant="secondary"
-                  onClick={() => setPagination({ page: pagination.page + 1 })}
+                  onClick={loadMoreDocuments}
                   isLoading={loading.isLoading}
                 >
                   Load More

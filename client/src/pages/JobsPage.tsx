@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { Briefcase, X, RotateCcw } from 'lucide-react';
 import { useJobStore } from '@/store/useJobStore';
 import { LoadingState } from '@/components/ui/LoadingSpinner';
@@ -11,18 +11,24 @@ export const JobsPage: React.FC = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs]);
+  }, []); // Remove fetchJobs from dependencies to prevent infinite loop
 
-  // Smart polling for active jobs
-  const hasActiveJobs = jobs.some(job =>
-    job.status === 'processing' || job.status === 'waiting'
+  // Memoize the active jobs check to prevent unnecessary re-renders
+  const hasActiveJobs = useMemo(() =>
+    jobs.some(job => job.status === 'processing' || job.status === 'waiting'),
+    [jobs]
   );
+
+  // Memoize the fetch function to prevent polling restarts
+  const memoizedFetchJobs = useCallback(() => {
+    fetchJobs();
+  }, []);
 
   useSmartPolling({
     enabled: hasActiveJobs,
     interval: POLLING_INTERVALS.JOBS,
     maxInterval: POLLING_INTERVALS.MAX_INTERVAL,
-    onPoll: fetchJobs,
+    onPoll: memoizedFetchJobs,
     dependencies: [hasActiveJobs]
   });
 

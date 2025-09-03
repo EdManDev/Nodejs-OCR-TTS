@@ -14,7 +14,7 @@ export const HomePage: React.FC = () => {
     fetchDocuments();
     fetchJobs();
     fetchStats();
-  }, [fetchDocuments, fetchJobs, fetchStats]);
+  }, []); // Remove function dependencies to prevent infinite loop
 
   const recentDocuments = documents.slice(0, 5);
   const recentJobs = jobs.slice(0, 5);
@@ -116,15 +116,14 @@ export const HomePage: React.FC = () => {
                           {new Date(doc.uploadedAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        doc.status === 'completed' 
+                      <span className={`px-2 py-1 text-xs rounded-full ${doc.status === 'completed'
                           ? 'bg-green-100 text-green-800'
                           : doc.status === 'processing'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : doc.status === 'failed'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : doc.status === 'failed'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                        }`}>
                         {doc.status}
                       </span>
                     </div>
@@ -167,7 +166,7 @@ export const HomePage: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div 
+                          <div
                             className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${job.progress}%` }}
                           />

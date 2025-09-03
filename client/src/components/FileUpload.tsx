@@ -12,21 +12,26 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  
+
   const { uploadDocument, uploadProgress, loading } = useDocumentStore();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
+      // Clean up previous preview URL to prevent memory leaks
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
       setSelectedFile(file);
-      
+
       // Create preview for PDF
       if (file.type === 'application/pdf') {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
       }
     }
-  }, []);
+  }, [previewUrl]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -65,11 +70,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
       {!selectedFile ? (
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-            isDragActive
-              ? 'border-primary-500 bg-primary-50'
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive
+            ? 'border-primary-500 bg-primary-50'
+            : 'border-gray-300 hover:border-gray-400'
+            }`}
         >
           <input {...getInputProps()} />
           <Upload className="mx-auto h-12 w-12 text-gray-400" />

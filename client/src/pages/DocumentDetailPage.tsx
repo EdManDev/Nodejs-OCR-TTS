@@ -13,7 +13,7 @@ export const DocumentDetailPage: React.FC = () => {
     if (id) {
       fetchDocument(id);
     }
-  }, [id, fetchDocument]);
+  }, [id]); // Remove fetchDocument from dependencies to prevent infinite loop
 
   if (!id) {
     return <div>Document ID not found</div>;
@@ -52,15 +52,14 @@ export const DocumentDetailPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div>
                       <p className="text-sm text-gray-500">Status</p>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        currentDocument.status === 'completed' 
+                      <span className={`px-2 py-1 text-xs rounded-full ${currentDocument.status === 'completed'
                           ? 'bg-green-100 text-green-800'
                           : currentDocument.status === 'processing'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : currentDocument.status === 'failed'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : currentDocument.status === 'failed'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                        }`}>
                         {currentDocument.status}
                       </span>
                     </div>

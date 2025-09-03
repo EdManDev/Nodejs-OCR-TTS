@@ -95,7 +95,7 @@ export const useSmartPolling = ({
     }
 
     return stopPolling;
-  }, [enabled, startPolling, stopPolling, ...dependencies]);
+  }, [enabled, ...dependencies]); // Remove startPolling and stopPolling from deps
 
   // Reset interval when dependencies change
   useEffect(() => {

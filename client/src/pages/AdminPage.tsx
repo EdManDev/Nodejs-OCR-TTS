@@ -9,7 +9,7 @@ export const AdminPage: React.FC = () => {
   useEffect(() => {
     fetchQueueInfo();
     fetchStats();
-  }, [fetchQueueInfo, fetchStats]);
+  }, []); // Remove function dependencies to prevent infinite loop
 
   return (
     <div className="space-y-6">

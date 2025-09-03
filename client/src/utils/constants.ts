@@ -38,8 +38,8 @@ export const PAGINATION_DEFAULTS = {
 } as const;
 
 export const POLLING_INTERVALS = {
-  JOBS: 10000, // 10 seconds (increased from 5s)
-  DOCUMENTS: 15000, // 15 seconds (increased from 10s)
-  HEALTH: 60000, // 60 seconds (increased from 30s)
+  JOBS: 15000, // 15 seconds (increased to reduce server load)
+  DOCUMENTS: 20000, // 20 seconds (increased to reduce server load)
+  HEALTH: 120000, // 2 minutes (increased to reduce server load)
   MAX_INTERVAL: 300000, // 5 minutes max
 } as const;

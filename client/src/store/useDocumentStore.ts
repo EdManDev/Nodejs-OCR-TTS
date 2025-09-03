@@ -22,6 +22,7 @@ interface DocumentStore {
 
   // Async actions
   fetchDocuments: () => Promise<void>;
+  loadMoreDocuments: () => Promise<void>;
   fetchDocument: (id: string) => Promise<void>;
   uploadDocument: (file: File) => Promise<Document | null>;
   deleteDocument: (id: string) => Promise<void>;
@@ -97,6 +98,32 @@ export const useDocumentStore = create<DocumentStore>()(
       }
     },
 
+    // Load more documents (append to existing list)
+    loadMoreDocuments: async () => {
+      const { filters, pagination, loading } = get();
+      if (!pagination.hasMore || loading.isLoading) return;
+
+      set({ loading: { isLoading: true, error: undefined } });
+
+      try {
+        const nextPage = pagination.page + 1;
+        const response = await documentService.getDocuments(filters, { ...pagination, page: nextPage });
+
+        if (response.success && response.data) {
+          const { documents: newDocuments, pagination: newPagination } = response.data;
+          set((state) => ({
+            documents: [...state.documents, ...newDocuments],
+            pagination: newPagination,
+            loading: { isLoading: false },
+          }));
+        } else {
+          set({ loading: { isLoading: false, error: response.error || 'Failed to load more documents' } });
+        }
+      } catch (error) {
+        set({ loading: { isLoading: false, error: (error as Error).message } });
+      }
+    },
+
     fetchDocument: async (id: string) => {
       set({ loading: { isLoading: true, error: undefined } });
 
@@ -132,13 +159,8 @@ export const useDocumentStore = create<DocumentStore>()(
             uploadProgress: 100,
           }));
 
-          // Only refetch if the document is being processed (to get updated status)
-          if (newDocument.status === 'processing' || newDocument.status === 'queued') {
-            // Use a longer delay for processing documents to avoid excessive polling
-            setTimeout(() => {
-              get().fetchDocuments();
-            }, 2000);
-          }
+          // Don't immediately refetch - let the smart polling handle status updates
+          // The polling will automatically detect processing documents and update accordingly
 
           return newDocument;
         } else {
@@ -259,27 +281,5 @@ export const useDocumentStore = create<DocumentStore>()(
   }))
 );
 
-// Debounced refetch function to prevent excessive requests
-let fetchTimeout: NodeJS.Timeout | null = null;
-const debouncedFetch = () => {
-  if (fetchTimeout) {
-    clearTimeout(fetchTimeout);
-  }
-  fetchTimeout = setTimeout(() => {
-    useDocumentStore.getState().fetchDocuments();
-  }, 300); // 300ms debounce
-};
-
-// Subscribe to filter changes to automatically refetch documents (debounced)
-useDocumentStore.subscribe(
-  (state) => state.filters,
-  debouncedFetch,
-  { fireImmediately: false }
-);
-
-// Subscribe to pagination changes to automatically refetch documents (debounced)
-useDocumentStore.subscribe(
-  (state) => state.pagination,
-  debouncedFetch,
-  { fireImmediately: false }
-);
+// Removed automatic subscriptions to prevent excessive API calls
+// Refetches should be triggered manually by user actions or polling

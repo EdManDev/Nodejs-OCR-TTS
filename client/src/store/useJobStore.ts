@@ -334,20 +334,5 @@ export const useJobStore = create<JobStore>()(
   }))
 );
 
-// Debounced refetch function to prevent excessive requests
-let jobFetchTimeout: NodeJS.Timeout | null = null;
-const debouncedJobFetch = () => {
-  if (jobFetchTimeout) {
-    clearTimeout(jobFetchTimeout);
-  }
-  jobFetchTimeout = setTimeout(() => {
-    useJobStore.getState().fetchJobs();
-  }, 300); // 300ms debounce
-};
-
-// Subscribe to filter changes to automatically refetch jobs (debounced)
-useJobStore.subscribe(
-  (state) => state.filters,
-  debouncedJobFetch,
-  { fireImmediately: false }
-);
+// Removed automatic subscriptions to prevent excessive API calls
+// Refetches should be triggered manually by user actions or polling

@@ -3,6 +3,7 @@ import { ApiResponse } from '@/types';
 
 class ApiClient {
   private client: AxiosInstance;
+  private pendingRequests: Map<string, Promise<any>> = new Map();
 
   constructor() {
     this.client = axios.create({
@@ -44,12 +45,42 @@ class ApiClient {
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const requestKey = `GET:${url}:${JSON.stringify(config)}`;
+
+    // Check if request is already pending
+    if (this.pendingRequests.has(requestKey)) {
+      console.log(`Deduplicating request: ${requestKey}`);
+      return this.pendingRequests.get(requestKey)!;
+    }
+
+    const requestPromise = this.makeRequest<T>(() => this.client.get(url, config));
+    this.pendingRequests.set(requestKey, requestPromise);
+
     try {
-      const response = await this.client.get(url, config);
+      const result = await requestPromise;
+      return result;
+    } finally {
+      this.pendingRequests.delete(requestKey);
+    }
+  }
+
+  private async makeRequest<T>(requestFn: () => Promise<any>): Promise<ApiResponse<T>> {
+    try {
+      const response = await requestFn();
       return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
+  }
+
+  // Clear all pending requests (useful for cleanup)
+  clearPendingRequests(): void {
+    this.pendingRequests.clear();
+  }
+
+  // Get count of pending requests (useful for debugging)
+  getPendingRequestsCount(): number {
+    return this.pendingRequests.size;
   }
 
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
@@ -107,13 +138,41 @@ class ApiClient {
       const message = error.response.data?.error || error.response.data?.message || 'An error occurred';
       return new Error(message);
     } else if (error.request) {
-      // Network error
+      // Network error - don't retry immediately to prevent spam
       return new Error('Network error. Please check your connection.');
     } else {
       // Something else happened
       return new Error('An unexpected error occurred');
     }
   }
+
+  // Add retry logic for critical requests (currently unused but available for future use)
+  // private async withRetry<T>(
+  //   requestFn: () => Promise<T>,
+  //   maxRetries: number = 2,
+  //   delay: number = 1000
+  // ): Promise<T> {
+  //   let lastError: Error;
+  //   
+  //   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+  //     try {
+  //       return await requestFn();
+  //     } catch (error: any) {
+  //       lastError = error as Error;
+  //       
+  //       // Don't retry on client errors (4xx) or server errors (5xx) except 5xx
+  //       if (error.response?.status >= 400 && error.response?.status < 500) {
+  //         throw error;
+  //       }
+  //       
+  //       if (attempt < maxRetries) {
+  //         await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, attempt)));
+  //       }
+  //     }
+  //   }
+  //   
+  //   throw lastError!;
+  // }
 }
 
 export const apiClient = new ApiClient();

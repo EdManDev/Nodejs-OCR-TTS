@@ -35,6 +35,96 @@ interface Document {
 export class DocumentController {
   private documents: Map<string, Document> = new Map();
 
+  constructor() {
+    // Initialize with some sample data for development
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    const sampleDocuments: Document[] = [
+      {
+        id: 'doc-1',
+        filename: 'sample-document-1.pdf',
+        originalName: 'Sample Document 1.pdf',
+        mimeType: 'application/pdf',
+        size: 1024000, // 1MB
+        pageCount: 5,
+        status: 'completed' as ProcessingStatus,
+        uploadedAt: new Date(Date.now() - 86400000), // 1 day ago
+        processedAt: new Date(Date.now() - 86300000), // 1 day ago + 10 minutes
+        extractedText: 'This is a sample document with extracted text content. It contains multiple paragraphs and demonstrates the OCR functionality.',
+        storageLocation: '/uploads/sample-document-1.pdf',
+        title: 'Sample Document 1',
+        author: 'John Doe',
+        subject: 'Sample Document',
+        creator: 'PDF Creator',
+        producer: 'PDF Producer',
+        creationDate: new Date(Date.now() - 172800000), // 2 days ago
+        modificationDate: new Date(Date.now() - 86400000), // 1 day ago
+        pageWidth: 612,
+        pageHeight: 792,
+        pageUnit: 'pt',
+        isScanned: false,
+        ocrConfidence: 95.5
+      },
+      {
+        id: 'doc-2',
+        filename: 'sample-document-2.pdf',
+        originalName: 'Sample Document 2.pdf',
+        mimeType: 'application/pdf',
+        size: 2048000, // 2MB
+        pageCount: 10,
+        status: 'processing' as ProcessingStatus,
+        uploadedAt: new Date(Date.now() - 3600000), // 1 hour ago
+        extractedText: 'This document is currently being processed...',
+        storageLocation: '/uploads/sample-document-2.pdf',
+        title: 'Sample Document 2',
+        author: 'Jane Smith',
+        subject: 'Processing Document',
+        creator: 'PDF Creator',
+        producer: 'PDF Producer',
+        creationDate: new Date(Date.now() - 7200000), // 2 hours ago
+        modificationDate: new Date(Date.now() - 3600000), // 1 hour ago
+        pageWidth: 612,
+        pageHeight: 792,
+        pageUnit: 'pt',
+        isScanned: true,
+        ocrConfidence: 87.2
+      },
+      {
+        id: 'doc-3',
+        filename: 'sample-document-3.pdf',
+        originalName: 'Sample Document 3.pdf',
+        mimeType: 'application/pdf',
+        size: 512000, // 512KB
+        pageCount: 3,
+        status: 'failed' as ProcessingStatus,
+        uploadedAt: new Date(Date.now() - 1800000), // 30 minutes ago
+        extractedText: '',
+        storageLocation: '/uploads/sample-document-3.pdf',
+        title: 'Sample Document 3',
+        author: 'Bob Johnson',
+        subject: 'Failed Document',
+        creator: 'PDF Creator',
+        producer: 'PDF Producer',
+        creationDate: new Date(Date.now() - 3600000), // 1 hour ago
+        modificationDate: new Date(Date.now() - 1800000), // 30 minutes ago
+        pageWidth: 612,
+        pageHeight: 792,
+        pageUnit: 'pt',
+        isScanned: true,
+        ocrConfidence: 0
+      }
+    ];
+
+    // Add sample documents to the map
+    sampleDocuments.forEach(doc => {
+      this.documents.set(doc.id, doc);
+    });
+
+    logger.info(`Initialized DocumentController with ${sampleDocuments.length} sample documents`);
+  }
+
   /**
    * GET /api/documents
    * List all documents with pagination and filtering
