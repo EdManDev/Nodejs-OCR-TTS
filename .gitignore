@@ -18,8 +18,8 @@ logs/
 server/logs/
 
 # Environment files
-.env
-.env.*
+# .env
+# .env.*
 client/.env
 client/.env.*
 server/.env

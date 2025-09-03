@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, FileText, Briefcase, Activity } from 'lucide-react';
+import { FileText, Briefcase, Activity } from 'lucide-react';
 import { useDocumentStore } from '@/store/useDocumentStore';
 import { useJobStore } from '@/store/useJobStore';
 import { LoadingState } from '@/components/ui/LoadingSpinner';
-import { Button } from '@/components/ui/Button';
 import { DocumentStatus } from '@/types';
 
 export const HomePage: React.FC = () => {
@@ -28,12 +27,6 @@ export const HomePage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-500">Welcome to your OCR TTS platform</p>
         </div>
-        <Link to="/documents?upload=true">
-          <Button>
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Document
-          </Button>
-        </Link>
       </div>
 
       {/* Stats Cards */}

@@ -1,36 +1,39 @@
 # Node.js OCR TTS Monorepo
 
-A comprehensive Node.js TypeScript monorepo for PDF OCR (Optical Character Recognition) and TTS (Text-to-Speech) processing. This project provides a robust backend API server and a React-based frontend client for handling document processing workflows.
+A comprehensive Node.js TypeScript monorepo for PDF OCR (Optical Character Recognition) and TTS (Text-to-Speech) processing. This project provides a robust backend API server and a modern React-based frontend client for handling document processing workflows with intelligent text chunking and audio synthesis capabilities.
 
 ## 🚀 Features
 
 ### Backend (Server)
-- **PDF Processing**: Upload and process PDF documents
-- **OCR Engine**: Extract text from scanned PDFs using Tesseract.js
-- **Text Chunking**: Intelligent text segmentation for processing
-- **TTS Integration**: Convert text to speech
-- **Job Queue**: Background processing with Bull/Redis
-- **Database**: PostgreSQL with Prisma ORM
-- **Storage**: Local filesystem or AWS S3 support
-- **API**: RESTful API with comprehensive endpoints
-- **Security**: Rate limiting, CORS, helmet protection
-- **Logging**: Structured logging with Winston
+- **PDF Processing**: Upload and process PDF documents up to 1000+ pages
+- **Advanced OCR Engine**: Extract text from scanned PDFs using Tesseract.js with configurable languages
+- **Intelligent Text Chunking**: Smart text segmentation optimized for TTS processing
+- **TTS Integration**: Convert extracted text to speech with multiple voice options
+- **Job Queue System**: Background processing with Bull/Redis for scalability
+- **Database**: PostgreSQL with Prisma ORM for robust data management
+- **Dual Storage**: Local filesystem or AWS S3 storage support
+- **RESTful API**: Comprehensive endpoints with proper error handling
+- **Security**: Rate limiting, CORS, helmet protection, input validation
+- **Advanced Logging**: Structured logging with Winston and file rotation
+- **Health Monitoring**: Real-time system health checks and metrics
 
 ### Frontend (Client)
-- **React**: Modern React application with TypeScript
-- **UI Components**: Reusable components for file upload, document management
-- **State Management**: Zustand for state management
-- **Routing**: React Router for navigation
-- **Styling**: Tailwind CSS for responsive design
-- **API Integration**: Axios for backend communication
+- **Modern React**: Built with React 18, TypeScript, and Vite
+- **Responsive UI**: Beautiful, mobile-friendly interface with Tailwind CSS
+- **Smart Components**: Reusable components for file upload, document management, and job tracking
+- **State Management**: Zustand for efficient state management
+- **Client-Side Routing**: React Router for seamless navigation
+- **Real-time Updates**: Smart polling for processing status updates
+- **Error Handling**: Comprehensive error boundaries and user feedback
+- **File Upload**: Drag-and-drop file upload with progress tracking
 
 ## 📋 Prerequisites
 
-- Node.js (>= 18.0.0)
-- npm or yarn
-- PostgreSQL database
-- Redis server (for job queue)
-- Tesseract OCR (for text extraction)
+- **Node.js**: Version 18.0 or higher
+- **npm** or **yarn** package manager
+- **PostgreSQL**: Version 12 or higher
+- **Redis**: Version 6.0 or higher (for job queue)
+- **Tesseract OCR**: Automatically installed with tesseract.js
 
 ## 🛠️ Installation
 
@@ -167,17 +170,27 @@ nodejs-ocr-tts/
 │   │   └── index.ts        # Server entry point
 │   ├── prisma/             # Database schema and migrations
 │   ├── uploads/            # File uploads (if using local storage)
+│   ├── temp/               # Temporary processing files
+│   ├── logs/               # Application logs
 │   └── package.json
 ├── client/                 # Frontend React application
 │   ├── src/
 │   │   ├── components/     # React components
+│   │   │   ├── ui/         # Reusable UI components
+│   │   │   ├── layout/     # Layout components
+│   │   │   └── ...         # Feature components
 │   │   ├── pages/          # Page components
 │   │   ├── services/       # API services
-│   │   ├── store/          # State management
+│   │   ├── store/          # State management (Zustand)
+│   │   ├── hooks/          # Custom React hooks
 │   │   ├── types/          # TypeScript types
 │   │   ├── utils/          # Utility functions
 │   │   └── main.tsx        # Client entry point
+│   ├── public/             # Static assets
+│   ├── dist/               # Build output
 │   └── package.json
+├── docker-compose.yml      # Docker configuration
+├── Dockerfile              # Server Dockerfile
 └── package.json            # Root package.json
 ```
 
@@ -211,39 +224,45 @@ nodejs-ocr-tts/
 ## 🌐 API Endpoints
 
 ### Health Check
-- `GET /api/health` - Server health check
+- `GET /api/health` - Server health check with detailed system status
 
-### Documents (Coming Soon)
-- `GET /api/documents` - List all documents
-- `POST /api/documents/upload` - Upload new document
-- `GET /api/documents/:id` - Get document details
-- `GET /api/documents/:id/chunks` - Get document text chunks
+### Documents
+- `GET /api/documents` - List all documents with pagination and filtering
+- `POST /api/documents/upload` - Upload new PDF document
+- `GET /api/documents/:id` - Get document details and processing status
+- `GET /api/documents/:id/chunks` - Get document text chunks for TTS
+- `GET /api/documents/:id/download` - Download original PDF file
+- `DELETE /api/documents/:id` - Delete document and associated files
+- `POST /api/documents/:id/reprocess` - Reprocess document
 
-### Jobs (Coming Soon)
-- `GET /api/jobs` - List processing jobs
-- `GET /api/jobs/:id` - Get job details
+### Jobs
+- `GET /api/jobs` - List processing jobs with status filtering
+- `GET /api/jobs/:id` - Get detailed job information
+- `POST /api/jobs/:id/cancel` - Cancel active processing job
 
-### TTS (Coming Soon)
-- `GET /api/tts/voices` - List available voices
-- `POST /api/tts/synthesize` - Convert text to speech
-- `GET /api/tts/audio/:id` - Get audio file
+### TTS (Text-to-Speech)
+- `GET /api/tts/voices` - List available TTS voices
+- `POST /api/tts/synthesize` - Convert text chunks to speech
+- `GET /api/tts/audio/:id` - Get generated audio file
 
 ## 🔒 Security Features
 
-- **Rate Limiting**: Prevents abuse with configurable limits
-- **CORS Protection**: Configurable cross-origin resource sharing
+- **Rate Limiting**: Configurable request throttling per IP address
+- **CORS Protection**: Configurable cross-origin resource sharing policies
 - **Helmet**: Security headers for Express applications
-- **Input Validation**: Request validation and sanitization
-- **File Upload Security**: MIME type validation and size limits
+- **Input Validation**: Comprehensive request validation and sanitization
+- **File Upload Security**: MIME type validation, size limits, and virus scanning
 - **Environment Variables**: Secure configuration management
+- **Error Handling**: Secure error messages that don't leak sensitive information
 
 ## 📊 Monitoring & Logging
 
-- **Structured Logging**: JSON-formatted logs with Winston
-- **Request Logging**: HTTP request/response logging
-- **Error Tracking**: Comprehensive error handling and logging
-- **Performance Monitoring**: Request timing and metrics
-- **Health Checks**: Application health monitoring
+- **Structured Logging**: JSON-formatted logs with Winston for easy parsing
+- **Request Logging**: HTTP request/response logging with timing information
+- **Error Tracking**: Comprehensive error handling and logging with stack traces
+- **Performance Monitoring**: Request timing, memory usage, and queue metrics
+- **Health Checks**: Real-time application health monitoring with detailed status
+- **File Rotation**: Automatic log file rotation and cleanup
 
 ## 🔧 Configuration
 
@@ -251,12 +270,17 @@ nodejs-ocr-tts/
 The server can be configured via environment variables or the config file at `server/src/config/index.ts`.
 
 ### Storage Options
-- **Local Storage**: Files stored in local filesystem
-- **AWS S3**: Files stored in Amazon S3 bucket
+- **Local Storage**: Files stored in local filesystem with configurable paths
+- **AWS S3**: Files stored in Amazon S3 bucket with configurable regions
 
 ### Database Options
-- **PostgreSQL**: Primary database (required)
-- **Redis**: Job queue and caching (required)
+- **PostgreSQL**: Primary database with Prisma ORM (required)
+- **Redis**: Job queue, caching, and session storage (required)
+
+### OCR Configuration
+- **Language Support**: Multiple language support (English, French, German, Spanish, etc.)
+- **DPI Settings**: Configurable image resolution for optimal OCR accuracy
+- **Batch Processing**: Configurable page batch sizes for memory optimization
 
 ## 🚨 Troubleshooting
 
@@ -272,12 +296,14 @@ The server can be configured via environment variables or the config file at `se
    ```bash
    # Check DATABASE_URL in server/.env
    # Ensure PostgreSQL is running
+   # Run: npm run setup-database
    ```
 
 3. **Redis Connection Issues**
    ```bash
    # Check Redis configuration in server/.env
    # Ensure Redis server is running
+   # Test connection: redis-cli ping
    ```
 
 4. **Build Issues**
@@ -287,36 +313,97 @@ The server can be configured via environment variables or the config file at `se
    npm run build
    ```
 
+5. **OCR Processing Failures**
+   ```bash
+   # Check available memory
+   # Reduce MAX_PAGES_PER_BATCH in .env
+   # Verify TESSERACT_LANG is correct
+   ```
+
 ### Development Tips
 
-- Use `npm run db:studio` to inspect database contents
-- Check server logs for detailed error information
+- Use `npm run db:studio` to inspect database contents visually
+- Check server logs in `server/logs/` for detailed error information
 - Use browser dev tools to debug client-side issues
 - Ensure all environment variables are properly set
+- Monitor Redis queue status for job processing issues
+
+## 🐳 Docker Support
+
+The project includes Docker configuration for easy deployment:
+
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Run server only
+docker build -t ocr-tts-server ./server
+docker run -p 3001:3001 ocr-tts-server
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test suites
+npm test -- --testNamePattern="OCR"
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes with proper TypeScript types
 4. Add tests if applicable
-5. Submit a pull request
+5. Ensure all tests pass
+6. Submit a pull request with detailed description
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- **Tesseract.js** - OCR engine
-- **Express.js** - Web framework
-- **React** - Frontend framework
-- **Prisma** - Database ORM
-- **Bull** - Job queue
-- **Winston** - Logging library
+- **Tesseract.js** - Advanced OCR engine for text extraction
+- **Express.js** - Fast, unopinionated web framework
+- **React** - Modern frontend framework with TypeScript
+- **Prisma** - Next-generation database ORM
+- **Bull** - Robust job queue for Node.js
+- **Winston** - Comprehensive logging library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Vite** - Next-generation frontend tooling
+
+## 🔮 Roadmap
+
+- [ ] Real-time WebSocket updates for processing status
+- [ ] Multiple OCR engine support (Google Cloud Vision, Azure)
+- [ ] Advanced text preprocessing and cleaning
+- [ ] Machine learning text classification
+- [ ] Microservices architecture with message queues
+- [ ] Kubernetes deployment configurations
+- [ ] GraphQL API support
+- [ ] Advanced caching strategies with Redis
+- [ ] Multi-tenant support
+- [ ] Advanced TTS voice customization
+- [ ] Batch document processing
+- [ ] Document versioning and history
 
 ---
 
 ## 📞 Support
 
-For issues and questions, please open an issue in the GitHub repository.
+For issues and questions:
+- 📖 Check the troubleshooting section above
+- 🐛 Open an issue in the GitHub repository
+- 💬 Join our community discussions
+- 📧 Contact the development team
+
+**Happy Document Processing! 📄✨**
