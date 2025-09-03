@@ -1,428 +1,322 @@
-# Node.js OCR TTS Backend
+# Node.js OCR TTS Monorepo
 
-A robust Node.js + TypeScript backend application for PDF Optical Character Recognition (OCR) and Text-to-Speech (TTS) preparation. Similar to Eleven Reader, this application efficiently processes large PDF files (up to 1000 pages), extracts text using OCR, and prepares it for TTS usage with intelligent chunking.
+A comprehensive Node.js TypeScript monorepo for PDF OCR (Optical Character Recognition) and TTS (Text-to-Speech) processing. This project provides a robust backend API server and a React-based frontend client for handling document processing workflows.
 
 ## 🚀 Features
 
-- **Large PDF Processing**: Handle PDFs up to 1000 pages without crashing
-- **Advanced OCR**: Extract text from both digital and scanned PDFs using Tesseract.js
-- **Smart Text Chunking**: Prepare text for TTS with configurable chunking strategies
-- **Asynchronous Processing**: Queue-based processing with Bull and Redis
-- **Scalable Architecture**: Memory-efficient streaming and batching
-- **Dual Storage Support**: Local filesystem and AWS S3 storage options
-- **Comprehensive API**: RESTful endpoints for all operations
-- **Security**: File validation, rate limiting, and secure uploads
-- **Monitoring**: Advanced logging and health checks
-- **Type Safety**: Full TypeScript implementation
+### Backend (Server)
+- **PDF Processing**: Upload and process PDF documents
+- **OCR Engine**: Extract text from scanned PDFs using Tesseract.js
+- **Text Chunking**: Intelligent text segmentation for processing
+- **TTS Integration**: Convert text to speech
+- **Job Queue**: Background processing with Bull/Redis
+- **Database**: PostgreSQL with Prisma ORM
+- **Storage**: Local filesystem or AWS S3 support
+- **API**: RESTful API with comprehensive endpoints
+- **Security**: Rate limiting, CORS, helmet protection
+- **Logging**: Structured logging with Winston
+
+### Frontend (Client)
+- **React**: Modern React application with TypeScript
+- **UI Components**: Reusable components for file upload, document management
+- **State Management**: Zustand for state management
+- **Routing**: React Router for navigation
+- **Styling**: Tailwind CSS for responsive design
+- **API Integration**: Axios for backend communication
 
 ## 📋 Prerequisites
 
-- **Node.js**: Version 18.0 or higher
-- **PostgreSQL**: Version 12 or higher
-- **Redis**: Version 6.0 or higher
-- **npm** or **yarn** package manager
-
-### Optional Dependencies
-- **AWS Account**: For S3 storage (if not using local storage)
-- **Tesseract**: For improved OCR performance (automatically installed with tesseract.js)
+- Node.js (>= 18.0.0)
+- npm or yarn
+- PostgreSQL database
+- Redis server (for job queue)
+- Tesseract OCR (for text extraction)
 
 ## 🛠️ Installation
 
-### 1. Clone the Repository
+### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone <repository-url>
 cd nodejs-ocr-tts
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 ```bash
+# Install all dependencies (root, server, and client)
+npm run install:all
+
+# Or install individually
 npm install
+cd server && npm install
+cd ../client && npm install
 ```
 
 ### 3. Environment Setup
-Copy the example environment file and configure:
-```bash
-cp .env.example .env
-```
 
-Edit `.env` with your configuration:
+#### Server Environment
+Create a `.env` file in the `server` directory:
+
 ```env
-# Database
+# Server Configuration
+NODE_ENV=development
+PORT=3001
+HOST=localhost
+
+# Database Configuration
 DATABASE_URL="postgresql://username:password@localhost:5432/ocr_tts_db"
 
-# Redis
+# Redis Configuration (for Bull Queue)
 REDIS_HOST=localhost
 REDIS_PORT=6379
+REDIS_PASSWORD=
 
-# Security (IMPORTANT: Change in production!)
-JWT_SECRET=your-super-secret-jwt-key
-
-# Storage (local or s3)
+# File Storage Configuration
 STORAGE_TYPE=local
 MAX_FILE_SIZE=100MB
+UPLOAD_PATH=./uploads
+TEMP_PATH=./temp
+
+# AWS S3 Configuration (if using S3)
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=
+
+# OCR Configuration
+TESSERACT_LANG=eng
+OCR_DPI=300
+MAX_PAGES_PER_BATCH=10
+
+# Text Chunking Configuration
+MAX_WORDS_PER_CHUNK=1000
+OVERLAP_WORDS=50
+
+# Security
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE_PATH=./logs
+ENABLE_FILE_LOGGING=false
+
+# Processing Configuration
+MAX_CONCURRENT_JOBS=5
+JOB_TIMEOUT_MS=300000
+CLEANUP_INTERVAL_HOURS=24
+```
+
+#### Client Environment
+Create a `.env` file in the `client` directory:
+
+```env
+VITE_API_BASE_URL=http://localhost:3001
+VITE_APP_NAME=OCR TTS Processing
 ```
 
 ### 4. Database Setup
+
 ```bash
 # Generate Prisma client
 npm run db:generate
 
 # Run database migrations
 npm run db:migrate
+
+# Optional: Open Prisma Studio
+npm run db:studio
 ```
 
-### 5. Create Required Directories
-```bash
-mkdir uploads temp logs
-```
-
-## 🗄️ Database Setup & Management
-
-### 1. Automatic Database Setup (Recommended)
-To automatically create the database and set permissions, run:
-```bash
-npm run setup-database
-```
-This script will create the `ocr_tts_db` database (if it doesn't exist) and grant all privileges to the `postgres` user.
-
-### 2. Prisma Studio (Visual DB Browser)
-To visually inspect and edit your database, run:
-```bash
-npx prisma studio
-```
-
-### 3. Resetting the Database (Development Only)
-To reset your database and reapply all migrations:
-```bash
-npx prisma migrate reset
-```
-
-## ⚠️ Prisma & PostgreSQL Troubleshooting
-- **Permission Denied / Access Errors:**
-  - Ensure your `.env` has the correct `DATABASE_URL` (see below).
-  - Run `npm run setup-database` to fix permissions.
-- **psql Not Found:**
-  - Use the provided Node.js setup script or a GUI tool like pgAdmin.
-- **Migration Errors:**
-  - Make sure PostgreSQL is running and accessible on `localhost:5432`.
-  - Check that your user has privileges on the `ocr_tts_db` database.
-
-## 📝 Example .env File
-```
-DATABASE_URL="postgresql://postgres:root@localhost:5432/ocr_tts_db"
-PORT=3000
-HOST=localhost
-NODE_ENV=development
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-MAX_FILE_SIZE=100MB
-UPLOAD_PATH=./uploads
-TEMP_PATH=./temp
-STORAGE_TYPE=local
-TESSERACT_LANG=eng
-OCR_DPI=300
-MAX_WORDS_PER_CHUNK=1000
-OVERLAP_WORDS=50
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-LOG_LEVEL=info
-LOG_FILE_PATH=./logs
-MAX_CONCURRENT_JOBS=5
-JOB_TIMEOUT_MS=300000
-CLEANUP_INTERVAL_HOURS=24
-```
-
-## 🏃‍♂️ Running the Application
+## 🚀 Running the Application
 
 ### Development Mode
 ```bash
+# Start both server and client concurrently
 npm run dev
+
+# Or start individually
+npm run dev:server  # Server only
+npm run dev:client  # Client only
 ```
 
 ### Production Mode
 ```bash
+# Build both applications
 npm run build
-npm start
-```
 
-### Running Tests
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
-```
-
-## 📡 API Endpoints
-
-### Document Management
-
-#### Upload PDF Document
-```http
-POST /api/documents/upload
-Content-Type: multipart/form-data
-
-Form Data:
-- file: PDF file (required)
-- ocrLanguage: Language code (optional, default: 'eng')
-- priority: Processing priority (optional: 'low', 'normal', 'high')
-```
-
-#### Get Document Details
-```http
-GET /api/documents/:documentId
-```
-
-#### List Documents
-```http
-GET /api/documents?page=1&limit=10&status=completed
-```
-
-#### Get Document Text Chunks
-```http
-GET /api/documents/:documentId/chunks?page=1&limit=50
-```
-
-#### Download Original PDF
-```http
-GET /api/documents/:documentId/download
-```
-
-#### Delete Document
-```http
-DELETE /api/documents/:documentId
-```
-
-### Processing Jobs
-
-#### Get Job Status
-```http
-GET /api/jobs/:jobId
-```
-
-#### List Jobs
-```http
-GET /api/jobs?status=active&type=text_extraction
-```
-
-#### Cancel Job
-```http
-POST /api/jobs/:jobId/cancel
-```
-
-### System
-
-#### Health Check
-```http
-GET /api/health
-```
-
-#### System Statistics
-```http
-GET /api/stats
-```
-
-## 🔧 Configuration
-
-### OCR Settings
-```env
-TESSERACT_LANG=eng          # Language: eng, fra, deu, spa, etc.
-OCR_DPI=300                 # Image DPI for OCR
-MAX_PAGES_PER_BATCH=10      # Pages processed per batch
-```
-
-### Text Chunking
-```env
-MAX_WORDS_PER_CHUNK=1000    # Maximum words per chunk
-OVERLAP_WORDS=50            # Overlap between chunks
-```
-
-### Processing Limits
-```env
-MAX_CONCURRENT_JOBS=5       # Concurrent processing jobs
-JOB_TIMEOUT_MS=300000       # Job timeout (5 minutes)
-```
-
-### Security
-```env
-RATE_LIMIT_WINDOW_MS=900000 # Rate limit window (15 minutes)
-RATE_LIMIT_MAX_REQUESTS=100 # Max requests per window
+# Start production server
+npm run start
 ```
 
 ## 📁 Project Structure
 
 ```
-src/
-├── controllers/        # HTTP request handlers
-├── services/          # Business logic
-│   ├── document.service.ts
-│   ├── ocr.service.ts
-│   ├── chunking.service.ts
-│   └── storage.service.ts
-├── models/            # Database models (Prisma)
-├── middleware/        # Express middleware
-│   ├── auth.middleware.ts
-│   ├── validation.middleware.ts
-│   └── error.middleware.ts
-├── utils/             # Utility functions
-│   ├── logger.ts
-│   ├── fileValidator.ts
-│   └── textProcessor.ts
-├── types/             # TypeScript interfaces
-├── queues/            # Job queue processors
-├── config/            # Configuration management
-├── routes/            # API route definitions
-├── storage/           # Storage providers (local/S3)
-└── tests/             # Test files
+nodejs-ocr-tts/
+├── server/                 # Backend API server
+│   ├── src/
+│   │   ├── config/         # Configuration files
+│   │   ├── controllers/    # Request handlers
+│   │   ├── middleware/     # Express middleware
+│   │   ├── models/         # Database models
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   ├── storage/        # File storage providers
+│   │   ├── types/          # TypeScript types
+│   │   ├── utils/          # Utility functions
+│   │   └── index.ts        # Server entry point
+│   ├── prisma/             # Database schema and migrations
+│   ├── uploads/            # File uploads (if using local storage)
+│   └── package.json
+├── client/                 # Frontend React application
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API services
+│   │   ├── store/          # State management
+│   │   ├── types/          # TypeScript types
+│   │   ├── utils/          # Utility functions
+│   │   └── main.tsx        # Client entry point
+│   └── package.json
+└── package.json            # Root package.json
 ```
 
-## 🔄 Processing Flow
+## 🔧 Available Scripts
 
-1. **Upload**: PDF uploaded via API endpoint
-2. **Validation**: File type, size, and structure validation
-3. **Storage**: File stored (local/S3) and metadata saved
-4. **Queue**: Processing job added to queue
-5. **OCR**: Text extraction using Tesseract.js
-6. **Chunking**: Text divided into TTS-ready chunks
-7. **Completion**: Results saved and client notified
+### Root Level
+- `npm run dev` - Start both server and client in development mode
+- `npm run build` - Build both applications
+- `npm run start` - Start production server
+- `npm run install:all` - Install all dependencies
+- `npm run clean` - Clean build artifacts
+- `npm run test` - Run tests
+- `npm run lint` - Run linting
 
-## 📊 Monitoring & Logging
+### Server Scripts
+- `npm run dev` - Start server in development mode
+- `npm run build` - Build TypeScript to JavaScript
+- `npm run start` - Start production server
+- `npm run test` - Run server tests
+- `npm run lint` - Run ESLint
+- `npm run db:migrate` - Run database migrations
+- `npm run db:generate` - Generate Prisma client
+- `npm run db:studio` - Open Prisma Studio
 
-### Logs
-- **Console**: Real-time development logs
-- **Files**: Rotating log files in production
-- **Levels**: Error, Warn, Info, Debug
+### Client Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-### Health Checks
-Monitor system health at `/api/health`:
-- Database connectivity
-- Redis connectivity
-- Storage availability
-- Memory usage
-- Queue status
+## 🌐 API Endpoints
+
+### Health Check
+- `GET /api/health` - Server health check
+
+### Documents (Coming Soon)
+- `GET /api/documents` - List all documents
+- `POST /api/documents/upload` - Upload new document
+- `GET /api/documents/:id` - Get document details
+- `GET /api/documents/:id/chunks` - Get document text chunks
+
+### Jobs (Coming Soon)
+- `GET /api/jobs` - List processing jobs
+- `GET /api/jobs/:id` - Get job details
+
+### TTS (Coming Soon)
+- `GET /api/tts/voices` - List available voices
+- `POST /api/tts/synthesize` - Convert text to speech
+- `GET /api/tts/audio/:id` - Get audio file
 
 ## 🔒 Security Features
 
-- **File Validation**: MIME type and magic number checking
-- **Size Limits**: Configurable file size restrictions
-- **Rate Limiting**: Request throttling per IP
-- **Input Sanitization**: Joi validation for all inputs
-- **Error Handling**: Secure error messages
-- **CORS**: Configurable cross-origin policies
+- **Rate Limiting**: Prevents abuse with configurable limits
+- **CORS Protection**: Configurable cross-origin resource sharing
+- **Helmet**: Security headers for Express applications
+- **Input Validation**: Request validation and sanitization
+- **File Upload Security**: MIME type validation and size limits
+- **Environment Variables**: Secure configuration management
 
-## 🚀 Performance Optimization
+## 📊 Monitoring & Logging
 
-### Memory Management
-- **Streaming**: Large files processed in streams
-- **Batching**: Pages processed in configurable batches
-- **Cleanup**: Automatic temporary file cleanup
-- **Pooling**: Database connection pooling
+- **Structured Logging**: JSON-formatted logs with Winston
+- **Request Logging**: HTTP request/response logging
+- **Error Tracking**: Comprehensive error handling and logging
+- **Performance Monitoring**: Request timing and metrics
+- **Health Checks**: Application health monitoring
 
-### Scalability
-- **Queue System**: Horizontal scaling with Redis
-- **Stateless Design**: No server-side sessions
-- **Caching**: Redis-based caching for frequent operations
-- **Load Balancing**: Compatible with load balancers
+## 🔧 Configuration
 
-## 🧪 Testing
+### Server Configuration
+The server can be configured via environment variables or the config file at `server/src/config/index.ts`.
 
-### Test Types
-- **Unit Tests**: Individual function testing
-- **Integration Tests**: API endpoint testing
-- **Performance Tests**: Large file processing tests
+### Storage Options
+- **Local Storage**: Files stored in local filesystem
+- **AWS S3**: Files stored in Amazon S3 bucket
 
-### Running Specific Tests
-```bash
-# Test specific service
-npm test -- src/services/ocr.service.test.ts
+### Database Options
+- **PostgreSQL**: Primary database (required)
+- **Redis**: Job queue and caching (required)
 
-# Test with specific pattern
-npm test -- --testNamePattern="OCR"
-```
-
-## 🐛 Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-#### "Module not found" errors
-```bash
-npm run clean
-npm install
-npm run build
-```
+1. **Port Already in Use**
+   ```bash
+   # Change PORT in server/.env file
+   PORT=3001
+   ```
 
-#### Database connection issues
-```bash
-# Check PostgreSQL service
-# Verify DATABASE_URL in .env
-# Test connection: npm run db:migrate
-```
+2. **Database Connection Issues**
+   ```bash
+   # Check DATABASE_URL in server/.env
+   # Ensure PostgreSQL is running
+   ```
 
-#### Redis connection issues
-```bash
-# Check Redis service
-# Verify REDIS_HOST and REDIS_PORT in .env
-```
+3. **Redis Connection Issues**
+   ```bash
+   # Check Redis configuration in server/.env
+   # Ensure Redis server is running
+   ```
 
-#### OCR processing failures
-```bash
-# Check available memory
-# Reduce MAX_PAGES_PER_BATCH
-# Verify TESSERACT_LANG is installed
-```
+4. **Build Issues**
+   ```bash
+   # Clean and rebuild
+   npm run clean
+   npm run build
+   ```
 
-### Performance Issues
-- Increase `MAX_CONCURRENT_JOBS` for faster processing
-- Reduce `MAX_PAGES_PER_BATCH` if running out of memory
-- Use SSD storage for better I/O performance
-- Consider upgrading to larger Redis instance
+### Development Tips
 
-## 📈 Scaling in Production
-
-### Horizontal Scaling
-1. Deploy multiple application instances
-2. Use shared Redis instance for queues
-3. Use shared PostgreSQL database
-4. Use S3 for file storage
-5. Implement load balancer
-
-### Vertical Scaling
-1. Increase server memory for larger files
-2. Use faster CPUs for OCR processing
-3. Use SSD storage for temporary files
+- Use `npm run db:studio` to inspect database contents
+- Check server logs for detailed error information
+- Use browser dev tools to debug client-side issues
+- Ensure all environment variables are properly set
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch: `git checkout -b feature/new-feature`
-3. Commit changes: `git commit -am 'Add new feature'`
-4. Push to branch: `git push origin feature/new-feature`
-5. Submit pull request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the troubleshooting section above
-- Review the API documentation
+- **Tesseract.js** - OCR engine
+- **Express.js** - Web framework
+- **React** - Frontend framework
+- **Prisma** - Database ORM
+- **Bull** - Job queue
+- **Winston** - Logging library
 
-## 🔮 Roadmap
+---
 
-- [ ] Real-time WebSocket updates
-- [ ] Multiple OCR engine support
-- [ ] Advanced text preprocessing
-- [ ] Machine learning text classification
-- [ ] Microservices architecture
-- [ ] Kubernetes deployment configs
-- [ ] GraphQL API support
-- [ ] Advanced caching strategies
+## 📞 Support
+
+For issues and questions, please open an issue in the GitHub repository.
